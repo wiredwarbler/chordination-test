@@ -22,20 +22,21 @@ void handleInput(std::string prompt, std::string &input)
     std::getline(std::cin, input);
 }
 
-std::string handleExpectedInput(std::string prompt, std::string &errorMessage, std::vector<std::string> &expectedInputs) 
+std::string handleExpectedInput(std::string prompt, std::string &errorMessage, std::vector<std::string> &expectedInputs)
 {
     bool invalidInput = true;
     std::string input = "";
-    while (invalidInput) 
+    while (invalidInput)
     {
         handleInput(input, prompt);
         invalidInput = (std::find(expectedInputs.begin(), expectedInputs.end(), input) == expectedInputs.end()); // test that final element does not trigger failure
-        if (invalidInput) std::cout << errorMessage << std::endl;
+        if (invalidInput)
+            std::cout << errorMessage << std::endl;
     }
     return input;
 }
 
-bool battleTest(std::vector<Hero> &heroParty)
+bool battleTest(std::vector<Hero> &heroParty, std::vector<BasicAction> &basicActions)
 {
     std::cout << " * * * BATTLE START ! * * * " << std::endl;
     // std::cin.ignore( std::numeric_limits<std::streamsize>::max(), '\n' ); // https://cplusplus.com/forum/beginner/79497/
@@ -49,8 +50,9 @@ bool battleTest(std::vector<Hero> &heroParty)
     do
     {
         turnCount++;
-        
-        std::vector<std::string> turnInputs = {};
+
+        // std::vector<std::string> turnInputs = {};
+        std::vector<chordinate::Note> notes = {};
         for (chordinate::Hero &hero : heroParty)
         {
             // display info for all heroes:
@@ -61,22 +63,29 @@ bool battleTest(std::vector<Hero> &heroParty)
             handleInput("\r\nWhat will " + hero.getName() + " do?\r\n> ", input);
 
             // expected inputs: ATTACK <target>, DEFEND <target>, SUPPORT <target>
-            
-            turnInputs.push_back(hero.getName() + ":\t" + input + "\r\n");
+
+            // turnInputs.push_back(hero.getName() + ":\t" + input + "\r\n");
+            chordinate::Note note = chordinate::Note(hero, basicActions[0]);
+            notes.push_back(note);
         }
         std::cout << std::endl;
-        for(std::string input : turnInputs)
+
+        // std::sort(notes.begin(), notes.end(), chordinate::Note::speedSort);
+        for (chordinate::Note note : notes)
         {
-            std::cout << " * " + input;
+            std::cout << " * " + note.getConsoleDisplay() << std::endl;
+            // debug: test modifying the hero values, make sure that the party vars are modified as well
+            note.testHeroMod();
         }
 
-        completed = (turnCount >= 3); // DEBUG TURN LIMITER
+        completed = (turnCount >= 2); // DEBUG TURN LIMITER
     } while (!completed);
 
     // won = completed;
     // std::string status = won ? "WON !" : "FAILED...";
     // std::cout << "\r\n * * * YOU " + status + " * * * \r\n" << std::endl;
-    std::cout << "\r\n * * * BATTLE COMPLETE ! * * * \r\n" << std::endl;
+    std::cout << "\r\n * * * BATTLE COMPLETE ! * * * \r\n"
+              << std::endl;
 
     return completed;
 }
@@ -94,10 +103,10 @@ int main()
     // todo:
     // pick a battle scenario
     // run the battle or quit
-    std::cout << "Enter anything to start.\r\n> ";
+    // std::cout << "Enter anything to start.\r\n> ";
 
-    std::string test;
-    std::cin >> test;
+    // std::string test;
+    // std::cin >> test; // I suspect that crossing the lines between std::getline and std::cin causes issues
 
     chordinate::Hero
         flaire = chordinate::Hero(4, 5, 3, "FLAIRE", Voice::Soprano, 35, 8, 8, 20, 5),
@@ -115,12 +124,13 @@ int main()
     // todo: how to bind these together... a static Party object?
 
     // C++ Reference: object&
-    // for (chordinate::Hero &hero : party)
-    // {
-    //     // display info for all heroes:
-    //     std::cout << hero.displayInfo() << std::endl;
-    // }
-    battleTest(party);
+    for (chordinate::Hero &hero : party)
+    {
+        // display info for all heroes:
+        std::cout << hero.displayInfo() << std::endl;
+    }
+
+    battleTest(party, basicActions);
 
     // std::cout << waft.displayInfo() << std::endl;
     // e.g. 'What will Waft do? 'input: >'1 > 1'
@@ -136,6 +146,13 @@ int main()
     //      run = false;
     // }
 
+    // DOUBLE TESTING
+    for (chordinate::Hero &hero : party)
+    {
+        // display info for all heroes:
+        std::cout << hero.displayInfo() << std::endl;
+    }
+
     std::cout << "Execution complete!" << std::endl;
-    std::cout << test << std::endl;
+    // std::cout << test << std::endl;
 }

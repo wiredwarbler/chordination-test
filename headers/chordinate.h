@@ -17,7 +17,8 @@ enum Voice
     Tenor = 3,
     Bass = 4
 };
-enum StatType {
+enum StatType
+{
     HitPoints = 1,
     Attack = 2,
     Defense = 3,
@@ -40,7 +41,8 @@ enum ActionTargetType
     SingleAllyOrSelf = 5,
     Self = 6
 };
-enum ActorState {
+enum ActorState
+{
     Normal = 1,
     Down = 2
 };
@@ -58,11 +60,13 @@ enum ChordType
 // todo: enum string mappers
 
 /* ******** CLASSES ******** */
-class Stat {
+class Stat
+{
 protected:
     StatType type;
     int max;
     int current;
+
 public:
     Stat(StatType st, int m);
     // Getters
@@ -87,6 +91,7 @@ protected:
     Stat speed;
     Stat luck;
     ActorState state;
+
 public:
     Actor(int i, int lvl, std::string n, int h, int a, int d, int s, int l);
     // Getters
@@ -100,15 +105,18 @@ class Hero : Actor
 protected:
     Voice voice;
     int partySequence;
+
 public:
     Hero(int i, int lvl, int ps, std::string n, Voice v, int h, int a, int d, int s, int l);
     // Getters
     std::string displayInfo();
     std::string getName();
+    int getSpeed();
     // Mutators / Setters
-    
+    void deltaHP(int n);
+
     // Helper Methods
-    bool operator< (const Hero& other) const; // supposedly, you can just make other sort methods and do this: std::sort(heroParty.begin(), heroParty.end(), sortmethod);
+    bool operator<(const Hero &other) const; // supposedly, you can just make other sort methods and do this: std::sort(heroParty.begin(), heroParty.end(), sortmethod);
 };
 
 // class Foe : Actor
@@ -123,7 +131,7 @@ public:
 // };
 
 /* ******* CHORDINATION ******* */
-class BasicAction 
+class BasicAction
 {
 protected:
     std::string name;
@@ -131,30 +139,39 @@ protected:
     ActionType type;
     ActionTargetType allowedTargetType;
     // int power; // Percent, or Added Power?
-    // int accuracy; 
-    // int critical; 
+    // int accuracy;
+    // int critical;
 public:
     BasicAction(std::string n, std::string aat, ActionType t, ActionTargetType att);
+    std::string getActionText();
 };
 
-class Note 
+class Note
 {
 protected:
     // https://stackoverflow.com/questions/12387239/is-it-idiomatic-to-store-references-members-in-a-class-and-are-there-pitfalls
-    // Hero& hero; // MUST BE SURE THAT THESE REFERENCES WILL ALWAYS OUTLIVE THIS NOTE OBJ
+    Hero &hero; // MUST BE SURE THAT THESE REFERENCES WILL ALWAYS OUTLIVE THIS NOTE OBJ
+    BasicAction &action;
     // std::vector<Actor&> targets;
-    // BasicAction& action;
     // std::string actionText;
     int sequence;
+    bool attempted;
     bool success;
+
 public:
-    Note();
+    Note(Hero &h, BasicAction &a);
+    void setAttempted(bool a);
+    void setSuccess(bool s);
+    int getHeroSpeed();
+    std::string getConsoleDisplay();
+    // bool speedSort(Note &other);
+    void testHeroMod();
 };
 
 // class Skill : BasicAction // todo: Action taken versus Action Type, Available Actions
 // {
 // protected:
-    
+
 // };
 
 // class ChordNote
@@ -163,7 +180,7 @@ public:
 //     Hero* hero;
 //     std::vector<Actor*> targets;
 // public:
-    
+
 // };
 
 // class Chord
@@ -195,7 +212,7 @@ public:
 // class Progression {
 //     // todo: collection/vector of Turns
 //     // resolution -> grand effect/explosion
-//     // failed movement -> reset Progression and 
+//     // failed movement -> reset Progression and
 // };
 
 #endif
